@@ -1,4 +1,6 @@
 from LinkedList import LinkedList
+from Stack import Stack
+'''
 l = LinkedList()
 l.append("2")
 l.append("3")
@@ -29,5 +31,10 @@ l2.append_to_front(-1)
 print(l2.return_as_list())
 
 print(l2.head.next.value)
-
-
+'''
+stack = Stack()
+stack.add(1)
+stack.add(2)
+print(stack.peek())
+print(stack.pop())
+print(stack.peek())

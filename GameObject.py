@@ -2,7 +2,7 @@ import pygame
 
 
 class GameObject():
-    def __init__(self, x, y, img=None, width=50, height=50):
+    def __init__(self, x: int, y: int, img:str=None, width: int=50, height:int=50):
         self.x = x
         self.y = y
         self.xspeed = 0
@@ -25,7 +25,7 @@ class GameObject():
         else:
             pygame.draw.rect(screen, ((255, 255, 255), (100, 100, self.x, self.y)))
 
-    def collision(self, other):
+    def collision(self, other: 'GameObject'):
         if self.hit_box.colliderect(other.hit_box):
             return True
         return False

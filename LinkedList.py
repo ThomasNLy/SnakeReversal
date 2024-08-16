@@ -85,6 +85,10 @@ class LinkedList():
         self.tail.next = new_node
         self.tail = new_node
 
+    def remove_first_object(self):
+        if self.head.next != None:
+            self.head = self.head.next
+
 
 
 
