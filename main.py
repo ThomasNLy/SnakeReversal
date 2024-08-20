@@ -16,7 +16,7 @@ BLACK = (0, 0, 0)
 
 screen = pygame.display.set_mode((1280, 720))
 clock = pygame.time.Clock()
-frame_rate = 30
+frame_rate = 60
 
 running = True
 
@@ -25,7 +25,8 @@ snake_body_img = "images/snakebody.png"
 apple_img = "images/apple.png"
 
 
-snake_speed = 15 # spacing between snake body parts
+
+snake_speed = 5 # spacing between snake body parts
 SNAKE_SIZE = 30
 global snakeList
 snake_list = LinkedList()
@@ -34,6 +35,7 @@ snake_list.append_to_front(SnakeObject(snake_list.head.value.prev_x, snake_list.
 
 global snake_head
 snake_head = snake_list.tail.value
+
 
 
 global apple
@@ -145,41 +147,49 @@ def reverse_time():
             
 
 def screen_wrap(gameObject: GameObject):
-    if gameObject.x > 1280:
+    if gameObject.x > 1400:
         gameObject.x = 0
-    if gameObject.x < 0:
-        gameObject.x = 1280
-    if gameObject.y > 720:
+        return True
+    if gameObject.x < -50:
+        gameObject.x = 1400
+        return True
+    if gameObject.y > 780:
         gameObject.y = 0
-    elif gameObject.y < 0:
+        return True
+    elif gameObject.y < -50:
         gameObject.y = 720
+        return True
+    return False
 
 def move_display_snake():
     global snake_head, points
 
+    print(snake_list.size)
 
     snake_head.move()
     snake_head.display(screen)
+    snake_head.show_hit_box(screen)
     screen_wrap(snake_head)
     record_previous_locations_and_points()
-    
-
     temp = snake_list.head
     while temp.has_next():
+        temp.value.x_dir = temp.next.value.x_dir
+        temp.value.y_dir = temp.next.value.y_dir
+        temp.value.move_to_new_spot(temp.next.value.prev_x + -temp.next.value.x_dir * SNAKE_SIZE,
+                                temp.next.value.prev_y + -temp.next.value.y_dir * SNAKE_SIZE)
 
-        temp.value.display(screen)
-        temp.value.move_to_new_spot(temp.next.value.prev_x, temp.next.value.prev_y)
-        temp.value.image_direction(snake_head.xspeed, snake_head.yspeed)
+
         temp.value.update_hit_box_loc()
+        temp.value.image_direction(temp.next.value.x_dir, temp.next.value.y_dir)
+        temp.value.display(screen)
+        temp.value.show_hit_box(screen)
 
         if temp.next != snake_list.tail and snake_head.collision(temp.value) and using_stop_time == False:
             points -= 5
             for i in range(3):
                 snake_list.remove_first_object()
-
-
-
         temp = temp.next
+
 #used to control the gameplay/things that render on the screen
 def gameplay():
     global snake_head, apple_can_pickup, snake_list, points
@@ -193,7 +203,9 @@ def gameplay():
         apple.y = random.randint(0,720)
         apple.update_hit_box_loc()
         apple_can_pickup = True
-        snake_list.append_to_front(SnakeObject(snake_list.head.value.prev_x, snake_list.head.value.prev_y, snake_body_img, SNAKE_SIZE, SNAKE_SIZE))
+        snake_list.append_to_front(SnakeObject(snake_list.head.value.prev_x + -snake_list.head.value.x_dir * SNAKE_SIZE
+                                               , snake_list.head.value.prev_y + -snake_list.head.value.y_dir * SNAKE_SIZE,
+                                               snake_body_img, SNAKE_SIZE, SNAKE_SIZE))
         points += 1
 
 def UI():
@@ -214,22 +226,26 @@ while running:
                 snake_list.append_to_front(SnakeObject(200, 200, snake_body_img, 30, 30))
             if event.key == pygame.K_a and snake_head.xspeed <= 0:
                 snake_head.image_direction(-1, 0)
-
+                snake_head.x_dir = -1
+                snake_head.y_dir = 0
                 snake_head.xspeed = -snake_speed
                 snake_head.yspeed = 0
             elif event.key == pygame.K_d and snake_head.xspeed >= 0:
                 snake_head.image_direction(1, 0)
-
+                snake_head.x_dir = 1
+                snake_head.y_dir = 0
                 snake_head.xspeed = snake_speed
                 snake_head.yspeed = 0
             elif event.key == pygame.K_w and snake_head.yspeed <= 0:
                 snake_head.image_direction(0, -1)
-
+                snake_head.x_dir = 0
+                snake_head.y_dir = -1
                 snake_head.yspeed = -snake_speed
                 snake_head.xspeed = 0
             elif event.key == pygame.K_s and snake_head.yspeed >= 0:
                 snake_head.image_direction(0, 1)
-
+                snake_head.x_dir = 0
+                snake_head.y_dir = 1
                 snake_head.yspeed = snake_speed
                 snake_head.xspeed = 0
             if event.key == pygame.K_SPACE:

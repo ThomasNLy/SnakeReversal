@@ -12,6 +12,7 @@ class LinkedList():
     def __init__(self):
         self.head = Node(None)
         self.tail = Node(None)
+        self.size = 0
 
     def append(self, item):
         if self.head.value is not None:
@@ -23,6 +24,7 @@ class LinkedList():
         else:
             self.head = Node(item)
             self.tail = self.head
+        self.size += 1
 
     def contains(self, item):
         if self.head.value == item:
@@ -38,6 +40,7 @@ class LinkedList():
     def remove(self, item):
         if self.head.value == item:
             self.head = self.head.next
+            self.size -= 1
         elif self.tail.value == item:
             temp = self.head
             while temp.has_next():
@@ -46,18 +49,21 @@ class LinkedList():
                 else:
                     temp.next = None
                     self.tail = temp
+            self.size -= 1
 
         elif self.head.value != item and self.tail.value != item:
             temp = self.head
             next_node = self.head.next
             while temp.has_next():
                 if next_node.value == item:
+                    self.size -= 1
                     temp.next = next_node.next
                     return;
                 temp = next_node
                 next_node = temp.next
         else:
             print(f"value: {item} doesn't exist")
+
 
 
     def return_as_list(self):
@@ -79,15 +85,18 @@ class LinkedList():
         new_node = Node(item)
         new_node.next = self.head
         self.head = new_node
+        self.size+=1
 
     def append_to_tail(self, item):
         new_node = Node(item)
         self.tail.next = new_node
         self.tail = new_node
+        self.size += 1
 
     def remove_first_object(self):
         if self.head.next != None:
             self.head = self.head.next
+            self.size -= 1
 
 
 
