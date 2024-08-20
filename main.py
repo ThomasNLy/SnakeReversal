@@ -16,7 +16,7 @@ BLACK = (0, 0, 0)
 
 screen = pygame.display.set_mode((1280, 720))
 clock = pygame.time.Clock()
-frame_rate = 25
+frame_rate = 30
 
 running = True
 
@@ -31,7 +31,10 @@ SNAKE_SIZE = 30
 global snakeList
 snake_list = DoublyLinkedList()
 snake_list.append(SnakeObject(200, 200, snake_head_img, SNAKE_SIZE, SNAKE_SIZE))
-snake_list.append(SnakeObject(snake_list.head.value.prev_x - 50, snake_list.head.value.prev_y, snake_body_img, SNAKE_SIZE, SNAKE_SIZE))
+snake_list.append(SnakeObject(250, 200, snake_body_img, SNAKE_SIZE, SNAKE_SIZE))
+snake_list.append(SnakeObject(300,200, snake_body_img, SNAKE_SIZE, SNAKE_SIZE))
+snake_list.append(SnakeObject(350, 200, snake_body_img, SNAKE_SIZE, SNAKE_SIZE))
+
 
 global snake_head
 snake_head = snake_list.head.value
@@ -162,35 +165,75 @@ def screen_wrap(gameObject: GameObject):
         return True
     return False
 
-def move_display_snake():
-    global snake_head, points
 
+
+global current
+current = 0
+global temp
+temp = snake_list.head.next
+def move_display_snake():
+    global snake_head, points, current, temp
+    s = snake_list.size
 
 
     snake_head.move()
     snake_head.display(screen)
-    snake_head.show_hit_box(screen)
-    screen_wrap(snake_head)
+    # snake_head.show_hit_box(screen)
     record_previous_locations_and_points()
-    temp = snake_list.head.next
-    print(snake_list.size)
 
-    while temp != None:
+    temp2 = snake_list.head.next
+    '''
+  
+    while temp2 != None:
+        temp2.value.image_direction(temp2.prev.value.x_dir, temp2.prev.value.y_dir)
+        temp2.value.display(screen)
+        temp2.value.show_hit_box(screen)
+
+        temp2 = temp2.next
+    if current < s and temp != None:
         temp.value.x_dir = temp.prev.value.x_dir
         temp.value.y_dir = temp.prev.value.y_dir
         temp.value.move_to_new_spot(temp.prev.value.prev_x + -temp.prev.value.x_dir * SNAKE_SIZE,
                                  temp.prev.value.prev_y + -temp.prev.value.y_dir * SNAKE_SIZE)
 
         temp.value.update_hit_box_loc()
-        temp.value.image_direction(temp.prev.value.x_dir, temp.prev.value.y_dir)
-        temp.value.display(screen)
-        temp.value.show_hit_box(screen)
+
 
         if temp != snake_list.head.next and snake_head.collision(temp.value) and using_stop_time == False:
             points -= 5
             for i in range(3):
                 snake_list.remove_last_object()
         temp = temp.next
+        current += 1
+    else:
+        temp = snake_list.head.next
+        current = 0
+      '''
+
+
+
+
+    temp = snake_list.head.next
+    while temp != None:
+        temp.value.x_dir = temp.prev.value.x_dir
+        temp.value.y_dir = temp.prev.value.y_dir
+        temp.value.move_to_new_spot(temp.prev.value.prev_x + -temp.prev.value.x_dir * (SNAKE_SIZE - 15),
+                                 temp.prev.value.prev_y + -temp.prev.value.y_dir * (SNAKE_SIZE - 15))
+
+
+        temp.value.update_hit_box_loc()
+        temp.value.image_direction(temp.prev.value.x_dir, temp.prev.value.y_dir)
+        temp.value.display(screen)
+        # temp.value.show_hit_box(screen)
+
+        if temp != snake_list.head.next and snake_head.collision(temp.value) and using_stop_time == False:
+            points -= 5
+            for i in range(3):
+                snake_list.remove_last_object()
+        temp = temp.next
+
+
+
 
 #used to control the gameplay/things that render on the screen
 def gameplay():
