@@ -1,6 +1,6 @@
 import random
 import pygame
-from LinkedList import LinkedList
+from DoublyLinkedList import DoublyLinkedList
 from Stack import Stack
 from GameObject import GameObject
 from SnakeObject import SnakeObject
@@ -16,7 +16,7 @@ BLACK = (0, 0, 0)
 
 screen = pygame.display.set_mode((1280, 720))
 clock = pygame.time.Clock()
-frame_rate = 60
+frame_rate = 25
 
 running = True
 
@@ -29,12 +29,12 @@ apple_img = "images/apple.png"
 snake_speed = 5 # spacing between snake body parts
 SNAKE_SIZE = 30
 global snakeList
-snake_list = LinkedList()
+snake_list = DoublyLinkedList()
 snake_list.append(SnakeObject(200, 200, snake_head_img, SNAKE_SIZE, SNAKE_SIZE))
-snake_list.append_to_front(SnakeObject(snake_list.head.value.prev_x, snake_list.head.value.prev_y, snake_body_img, SNAKE_SIZE, SNAKE_SIZE))
+snake_list.append(SnakeObject(snake_list.head.value.prev_x - 50, snake_list.head.value.prev_y, snake_body_img, SNAKE_SIZE, SNAKE_SIZE))
 
 global snake_head
-snake_head = snake_list.tail.value
+snake_head = snake_list.head.value
 
 
 
@@ -127,6 +127,7 @@ def reverse_time():
             for i in range(len(last_loc)-1):
                 temp.value.x = last_loc[i]["x"]
                 temp.value.y = last_loc[i]["y"]
+                temp = temp.next
             snake_list.tail.value.x = last_loc[-1]["x"]
             snake_list.tail.value.y = last_loc[-1]["y"]
             # snake_list.tail.value.xspeed = 0
@@ -164,30 +165,31 @@ def screen_wrap(gameObject: GameObject):
 def move_display_snake():
     global snake_head, points
 
-    print(snake_list.size)
+
 
     snake_head.move()
     snake_head.display(screen)
     snake_head.show_hit_box(screen)
     screen_wrap(snake_head)
     record_previous_locations_and_points()
-    temp = snake_list.head
-    while temp.has_next():
-        temp.value.x_dir = temp.next.value.x_dir
-        temp.value.y_dir = temp.next.value.y_dir
-        temp.value.move_to_new_spot(temp.next.value.prev_x + -temp.next.value.x_dir * SNAKE_SIZE,
-                                temp.next.value.prev_y + -temp.next.value.y_dir * SNAKE_SIZE)
+    temp = snake_list.head.next
+    print(snake_list.size)
 
+    while temp != None:
+        temp.value.x_dir = temp.prev.value.x_dir
+        temp.value.y_dir = temp.prev.value.y_dir
+        temp.value.move_to_new_spot(temp.prev.value.prev_x + -temp.prev.value.x_dir * SNAKE_SIZE,
+                                 temp.prev.value.prev_y + -temp.prev.value.y_dir * SNAKE_SIZE)
 
         temp.value.update_hit_box_loc()
-        temp.value.image_direction(temp.next.value.x_dir, temp.next.value.y_dir)
+        temp.value.image_direction(temp.prev.value.x_dir, temp.prev.value.y_dir)
         temp.value.display(screen)
         temp.value.show_hit_box(screen)
 
-        if temp.next != snake_list.tail and snake_head.collision(temp.value) and using_stop_time == False:
+        if temp != snake_list.head.next and snake_head.collision(temp.value) and using_stop_time == False:
             points -= 5
             for i in range(3):
-                snake_list.remove_first_object()
+                snake_list.remove_last_object()
         temp = temp.next
 
 #used to control the gameplay/things that render on the screen
@@ -203,8 +205,8 @@ def gameplay():
         apple.y = random.randint(0,720)
         apple.update_hit_box_loc()
         apple_can_pickup = True
-        snake_list.append_to_front(SnakeObject(snake_list.head.value.prev_x + -snake_list.head.value.x_dir * SNAKE_SIZE
-                                               , snake_list.head.value.prev_y + -snake_list.head.value.y_dir * SNAKE_SIZE,
+        snake_list.append(SnakeObject(snake_list.tail.value.prev_x + -snake_list.tail.value.x_dir * SNAKE_SIZE
+                                               , snake_list.tail.value.prev_y + -snake_list.tail.value.y_dir * SNAKE_SIZE,
                                                snake_body_img, SNAKE_SIZE, SNAKE_SIZE))
         points += 1
 
@@ -223,31 +225,35 @@ while running:
             running = False
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RETURN:
-                snake_list.append_to_front(SnakeObject(200, 200, snake_body_img, 30, 30))
+                snake_list.append(SnakeObject(200, 200, snake_body_img, 30, 30))
             if event.key == pygame.K_a and snake_head.xspeed <= 0:
                 snake_head.image_direction(-1, 0)
                 snake_head.x_dir = -1
                 snake_head.y_dir = 0
                 snake_head.xspeed = -snake_speed
                 snake_head.yspeed = 0
+
             elif event.key == pygame.K_d and snake_head.xspeed >= 0:
                 snake_head.image_direction(1, 0)
                 snake_head.x_dir = 1
                 snake_head.y_dir = 0
                 snake_head.xspeed = snake_speed
                 snake_head.yspeed = 0
+
             elif event.key == pygame.K_w and snake_head.yspeed <= 0:
                 snake_head.image_direction(0, -1)
                 snake_head.x_dir = 0
                 snake_head.y_dir = -1
                 snake_head.yspeed = -snake_speed
                 snake_head.xspeed = 0
+
             elif event.key == pygame.K_s and snake_head.yspeed >= 0:
                 snake_head.image_direction(0, 1)
                 snake_head.x_dir = 0
                 snake_head.y_dir = 1
                 snake_head.yspeed = snake_speed
                 snake_head.xspeed = 0
+
             if event.key == pygame.K_SPACE:
                 
                 if previous_locations.size() != 0: 
