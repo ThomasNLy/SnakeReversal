@@ -25,7 +25,7 @@ snake_body_img = "images/snakebody.png"
 apple_img = "images/apple.png"
 
 
-
+global snake_speed
 snake_speed =  5# spacing between snake body parts
 SNAKE_SIZE = 30
 global snake_list
@@ -90,6 +90,34 @@ pygame.time.set_timer(FLASH_TEXT_EVENT, 500)
 global flash_text
 flash_text = False
 
+#---------main menu variables-------
+start_game_option_loc = {
+    "x": 570,
+    "y": 400
+}
+quit_game_option_loc = {
+    "x": 570,
+    "y": 450
+}
+main_menu_options_cursor_loc = [start_game_option_loc, quit_game_option_loc]
+main_menu_option = 0
+on_main_menu = True
+cursor = pygame.image.load(apple_img)
+cursor = pygame.transform.scale(cursor, (25, 25))
+global main_menu_snake_animation
+main_menu_snake_animation = DoublyLinkedList()
+main_menu_snake_animation.append(SnakeObject(200, 200, snake_head_img, SNAKE_SIZE, SNAKE_SIZE))
+main_menu_snake_animation.append(SnakeObject(170, 200, snake_body_img, SNAKE_SIZE, SNAKE_SIZE))
+main_menu_snake_animation.append(SnakeObject(140,200, snake_body_img, SNAKE_SIZE, SNAKE_SIZE))
+main_menu_snake_animation.append(SnakeObject(110, 200, snake_body_img, SNAKE_SIZE, SNAKE_SIZE))
+main_menu_snake_animation.append(SnakeObject(80, 200, snake_body_img, SNAKE_SIZE, SNAKE_SIZE))
+global snake_anim_direction
+snake_anim_direction = {
+    "x_dir": 1,
+    "y_dir": 0
+}
+SNAKE_ANIM_DIR_CHANGE = pygame.USEREVENT + 2
+pygame.time.set_timer(SNAKE_ANIM_DIR_CHANGE, 7000)
 
 def reset_game():
     global snake_list
@@ -132,6 +160,8 @@ def reset_game():
 
     global using_reverse_time
     using_reverse_time = False
+    global snake_speed
+    snake_speed = 5
 
 def record_previous_locations_and_points():
     global previous_locations, num_locs_recorded, snake_list, record_loc_timer
@@ -355,7 +385,30 @@ def main_menu():
     quit_game_option_text = pygame.font.Font.render(regular_font, "quit", True, WHITE)
     screen.blit(quit_game_option_text, (600, 450))
 
+    screen.blit(cursor, (main_menu_options_cursor_loc[main_menu_option]["x"],
+                         main_menu_options_cursor_loc[main_menu_option]["y"] - 5))
 
+    global main_menu_snake_animation
+    snake_anim_head = main_menu_snake_animation.head.value
+    snake_anim_head.xspeed = snake_anim_direction["x_dir"] * 2
+    snake_anim_head.x_dir = snake_anim_direction["x_dir"]
+    snake_anim_head.yspeed = snake_anim_direction["y_dir"] * 2
+    snake_anim_head.y_dir = snake_anim_direction["y_dir"]
+    snake_anim_head.image_direction(snake_anim_head.x_dir, snake_anim_head.y_dir)
+    snake_anim_head.display(screen)
+    snake_anim_head.move()
+    screen_wrap(snake_anim_head)
+
+    temp = main_menu_snake_animation.head.next
+    while temp != None:
+        temp.value.x_dir = temp.prev.value.x_dir
+        temp.value.y_dir = temp.prev.value.y_dir
+        temp.value.move_to_new_spot(
+            temp.prev.value.prev_x + -temp.prev.value.x_dir * (SNAKE_SIZE - 10),
+            temp.prev.value.prev_y + -temp.prev.value.y_dir * (SNAKE_SIZE - 10))
+        temp.value.image_direction(temp.prev.value.x_dir, temp.prev.value.y_dir)
+        temp.value.display(screen)
+        temp = temp.next
 def UI():
     global flash_text, game_over
     points_text = pygame.font.Font.render(regular_font, f"Points: {points}", True, WHITE)
@@ -386,52 +439,78 @@ while running:
             running = False
         if event.type == FLASH_TEXT_EVENT:
             flash_text = not flash_text
+        if event.type == SNAKE_ANIM_DIR_CHANGE:
+            random_dir = random.randrange(4)
+            if random_dir > 3:
+                snake_anim_direction["x_dir"] = 1
+                snake_anim_direction["y_dir"] = 0
+            elif random_dir > 2:
+                snake_anim_direction["x_dir"] = 0
+                snake_anim_direction["y_dir"] = 1
+            elif random_dir > 1:
+                snake_anim_direction["x_dir"] = -1
+                snake_anim_direction["y_dir"] = 0
+            else:
+                snake_anim_direction["x_dir"] = 0
+                snake_anim_direction["y_dir"] = -1
+
 
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RETURN:
-                reset_game()
-                # snake_list.append(SnakeObject(200, 200, snake_body_img, 30, 30))
+            if on_main_menu == True:
+                if event.key == pygame.K_s:
+                    main_menu_option = 1
+                elif event.key == pygame.K_w:
+                    main_menu_option = 0
+                if event.key == pygame.K_RETURN:
+                    if main_menu_option == 0:
+                        on_main_menu = False
+                    if main_menu_option == 1:
+                        running = False
+            else:
+                if event.key == pygame.K_RETURN:
+                    reset_game()
+                    # snake_list.append(SnakeObject(200, 200, snake_body_img, 30, 30))
 
-            if using_reverse_time:
-                select_moment_in_time()
-            if event.key == pygame.K_a and snake_head.xspeed <= 0:
-                snake_head.image_direction(-1, 0)
-                snake_head.x_dir = -1
-                snake_head.y_dir = 0
-                snake_head.xspeed = -snake_speed
-                snake_head.yspeed = 0
-                start_game = True
+                if using_reverse_time:
+                    select_moment_in_time()
+                if event.key == pygame.K_a and snake_head.xspeed <= 0:
+                    snake_head.image_direction(-1, 0)
+                    snake_head.x_dir = -1
+                    snake_head.y_dir = 0
+                    snake_head.xspeed = -snake_speed
+                    snake_head.yspeed = 0
+                    start_game = True
 
-            elif event.key == pygame.K_d and snake_head.xspeed >= 0:
-                snake_head.image_direction(1, 0)
-                snake_head.x_dir = 1
-                snake_head.y_dir = 0
-                snake_head.xspeed = snake_speed
-                snake_head.yspeed = 0
-                start_game = True
+                elif event.key == pygame.K_d and snake_head.xspeed >= 0:
+                    snake_head.image_direction(1, 0)
+                    snake_head.x_dir = 1
+                    snake_head.y_dir = 0
+                    snake_head.xspeed = snake_speed
+                    snake_head.yspeed = 0
+                    start_game = True
 
-            elif event.key == pygame.K_w and snake_head.yspeed <= 0:
-                snake_head.image_direction(0, -1)
-                snake_head.x_dir = 0
-                snake_head.y_dir = -1
-                snake_head.yspeed = -snake_speed
-                snake_head.xspeed = 0
-                start_game = True
+                elif event.key == pygame.K_w and snake_head.yspeed <= 0:
+                    snake_head.image_direction(0, -1)
+                    snake_head.x_dir = 0
+                    snake_head.y_dir = -1
+                    snake_head.yspeed = -snake_speed
+                    snake_head.xspeed = 0
+                    start_game = True
 
-            elif event.key == pygame.K_s and snake_head.yspeed >= 0:
-                snake_head.image_direction(0, 1)
-                snake_head.x_dir = 0
-                snake_head.y_dir = 1
-                snake_head.yspeed = snake_speed
-                snake_head.xspeed = 0
-                start_game = True
+                elif event.key == pygame.K_s and snake_head.yspeed >= 0:
+                    snake_head.image_direction(0, 1)
+                    snake_head.x_dir = 0
+                    snake_head.y_dir = 1
+                    snake_head.yspeed = snake_speed
+                    snake_head.xspeed = 0
+                    start_game = True
 
-            if event.key == pygame.K_SPACE:
-                
-                if previous_locations.size() != 0:
-                    if using_reverse_time is False:
-                        reverse_time_uses -= 1
-                    reverse_time()
+                if event.key == pygame.K_SPACE:
+
+                    if previous_locations.size() != 0:
+                        if using_reverse_time is False:
+                            reverse_time_uses -= 1
+                        reverse_time()
 
 
 
@@ -440,9 +519,11 @@ while running:
 
 
     screen.fill(BLACK)
-    gameplay()
-    main_menu()
-    UI()
+    if on_main_menu:
+        main_menu()
+    else:
+        gameplay()
+        UI()
     pygame.display.flip()
     clock.tick(frame_rate)
 
