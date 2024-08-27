@@ -109,6 +109,7 @@ class DoublyLinkedList():
         if self.tail != None and self.tail.prev != None:
             self.tail = self.tail.prev
             self.tail.next = None
+            self.size -= 1
 
 
 
