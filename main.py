@@ -11,6 +11,7 @@ pygame.font.init()
 #----------COLOURS------
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
+RED = (201, 60, 60)
 
 
 
@@ -59,13 +60,17 @@ start_game = False
 global game_over
 game_over = False
 
+#----------lives----
+global lives
+lives = 3
 
 #-----------time travel code--------------
 TIME_TRAVEL_LIMIT = 5
 global previous_locations
 previous_locations = Stack()
-global num_locs_recorded
-num_locs_recorded = 0
+# number of time stamps recorded so far, can only record up to the last 5 moments at a time to count as 1 set before starting a new one
+global num_temporal_recordings
+num_temporal_recordings = 0
 global record_loc_timer
 record_loc_timer = 0
 global previous_points
@@ -79,7 +84,10 @@ previous_speed = Stack()
 global using_reverse_time
 using_reverse_time = False
 global reverse_time_uses
-reverse_time_uses  = 5
+reverse_time_uses = 2
+
+global num_recent_time_stamps # number of recent moments the snake can jump back in time too
+num_recent_time_stamps = 0
 
 regular_font = pygame.font.get_default_font()
 regular_font = pygame.font.Font(regular_font, 18)
@@ -120,6 +128,8 @@ SNAKE_ANIM_DIR_CHANGE = pygame.USEREVENT + 2
 pygame.time.set_timer(SNAKE_ANIM_DIR_CHANGE, 7000)
 
 def reset_game():
+
+
     global snake_list
     snake_list = DoublyLinkedList()
     snake_list.append(SnakeObject(200, 200, snake_head_img, SNAKE_SIZE, SNAKE_SIZE))
@@ -144,10 +154,12 @@ def reset_game():
     game_over = False
 
     # -----------time travel code--------------
+    global num_recent_time_stamps
+    num_recent_time_stamps = 0
     global previous_locations
     previous_locations = Stack()
-    global num_locs_recorded
-    num_locs_recorded = 0
+    global num_temporal_recordings
+    num_temporal_recordings = 0
     global record_loc_timer
     record_loc_timer = 0
     global previous_points
@@ -160,19 +172,24 @@ def reset_game():
 
     global using_reverse_time
     using_reverse_time = False
+    global reverse_time_uses
+    reverse_time_uses = 5
     global snake_speed
     snake_speed = 5
 
 def record_previous_locations_and_points():
-    global previous_locations, num_locs_recorded, snake_list, record_loc_timer
+    global previous_locations, num_temporal_recordings, snake_list, record_loc_timer
     global previous_points, previous_apple_loc, previous_speed
+    global num_recent_time_stamps
     delta_time = clock.tick(frame_rate)
     record_loc_timer += delta_time
     if record_loc_timer > 2000:
         print("recording")
         record_loc_timer = 0
-        if num_locs_recorded < TIME_TRAVEL_LIMIT:
-            num_locs_recorded += 1
+        if num_temporal_recordings < TIME_TRAVEL_LIMIT:
+            num_temporal_recordings += 1
+            if num_recent_time_stamps < TIME_TRAVEL_LIMIT:
+                num_recent_time_stamps += 1
             temp = snake_list.head
             temp_list_coords = []
             while temp.has_next():
@@ -213,11 +230,15 @@ def record_previous_locations_and_points():
             temp_points_stack = Stack()
             temp_apple_coords_stack = Stack()
             temp_previous_speed_stack = Stack()
-            for i in range(TIME_TRAVEL_LIMIT - 1):
-                temp_prev_snake_loc_stack.add(previous_locations.pop())
-                temp_points_stack.add(previous_points.pop())
-                temp_apple_coords_stack.add(previous_apple_loc.pop())
-                temp_previous_speed_stack.add(previous_speed.pop())
+            previous_locations.reverse_stack()
+            previous_points.reverse_stack()
+            previous_speed.reverse_stack()
+            previous_apple_loc.reverse_stack()
+            for i in range(TIME_TRAVEL_LIMIT): #resets the list by having it add the 5 most recent time steps recorded before recording more
+                temp_prev_snake_loc_stack.add(previous_locations.as_list()[i])
+                temp_points_stack.add(previous_points.as_list()[i])
+                temp_apple_coords_stack.add(previous_apple_loc.as_list()[i])
+                temp_previous_speed_stack.add(previous_speed.as_list()[i])
             previous_locations = temp_prev_snake_loc_stack
             previous_points = temp_points_stack
             previous_apple_loc = temp_apple_coords_stack
@@ -225,7 +246,7 @@ def record_previous_locations_and_points():
 
 
             
-            num_locs_recorded = 0
+            num_temporal_recordings = 0
         
 def reverse_time():
     global previous_locations, snake_list, using_reverse_time
@@ -255,7 +276,6 @@ def reverse_time():
             # snake_list.tail.value.yspeed = 0
             if len(last_loc) < snake_list.size:
                 difference = snake_list.size - len(last_loc)
-                print(difference)
                 for i in range(difference):
                     snake_list.remove_last_object()
 
@@ -421,7 +441,16 @@ def UI():
     else:
         screen.blit(using_reverse_time_text, (200, 50))
 
-    screen.blit(reverse_time_uses_text, (300, 50))
+    screen.blit(reverse_time_uses_text, (290, 50))
+
+    for i in range(num_recent_time_stamps):
+        pygame.draw.circle(screen, WHITE, (510 + 22 * i, 58), 10)
+    num_temporal_recordings_text = pygame.font.Font.render(regular_font, "RECORDINGS:", True, WHITE)
+    screen.blit(num_temporal_recordings_text, (350, 50))
+
+    #---------life bar
+    for i in range(lives):
+        pygame.draw.circle(screen, RED, (900 + 22 * i, 58), 10)
 
     if game_over:
         game_over_text = pygame.font.Font.render(h1_font, "GAMEOVER", True, WHITE)
@@ -507,7 +536,9 @@ while running:
 
                 if event.key == pygame.K_SPACE:
 
-                    if previous_locations.size() != 0:
+                    if previous_locations.size() != 0 and num_recent_time_stamps != 0 and reverse_time_uses > 0:
+                        num_recent_time_stamps -= 1
+                        num_temporal_recordings -= 1
                         if using_reverse_time is False:
                             reverse_time_uses -= 1
                         reverse_time()

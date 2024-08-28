@@ -17,3 +17,13 @@ class Stack():
 
     def size(self):
         return len(self.s_list)
+
+    def as_list(self):
+        return self.s_list
+
+    def reverse_stack(self):
+        temp = []
+        for i in range(len(self.s_list)-1, -1, -1):
+            temp.append(self.s_list[i])
+
+        self.s_list = temp
