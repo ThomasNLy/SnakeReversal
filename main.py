@@ -24,6 +24,7 @@ running = True
 snake_head_img = "images/snakehead.png"
 snake_body_img = "images/snakebody.png"
 apple_img = "images/apple.png"
+heart_img = "images/heart.png"
 
 
 global snake_speed
@@ -63,6 +64,12 @@ game_over = False
 #----------lives----
 global lives
 lives = 3
+lives_icon = pygame.image.load(heart_img)
+lives_icon = pygame.transform.scale(lives_icon, (25, 25))
+global taking_damage
+taking_damage = False
+global damage_timer
+damage_timer = 0
 
 #-----------time travel code--------------
 TIME_TRAVEL_LIMIT = 5
@@ -333,9 +340,18 @@ def out_of_bounds():
     if snake_head.y > arena_h + arena_y - SNAKE_SIZE:
         game_over = True
 
+
+def take_damage_cooldown():
+    global damage_timer, taking_damage
+    if damage_timer < 90 and taking_damage is True:
+        damage_timer += 1
+    else:
+        damage_timer = 0
+        taking_damage = False
+    print(damage_timer)
 def move_display_snake():
     global snake_head, points
-    global start_game, game_over
+    global start_game, game_over, lives, taking_damage
 
 
     if start_game and using_reverse_time == False and game_over == False:
@@ -367,7 +383,13 @@ def move_display_snake():
                 points = 0
             for i in range(3):
                 snake_list.remove_last_object()
+            if taking_damage is False:
+                taking_damage = True
+                lives -= 1
+
         temp = temp.next
+
+    take_damage_cooldown()
 
 
 
@@ -448,9 +470,12 @@ def UI():
     num_temporal_recordings_text = pygame.font.Font.render(regular_font, "RECORDINGS:", True, WHITE)
     screen.blit(num_temporal_recordings_text, (350, 50))
 
-    #---------life bar
+    #---------life bar------------
+    lives_text = pygame.font.Font.render(regular_font, "LIVES:", True, WHITE)
+    screen.blit(lives_text, (820, 50))
     for i in range(lives):
-        pygame.draw.circle(screen, RED, (900 + 22 * i, 58), 10)
+        # pygame.draw.circle(screen, RED, (900 + 22 * i, 58), 10)
+        screen.blit(lives_icon, (900 + 22 * i, 45))
 
     if game_over:
         game_over_text = pygame.font.Font.render(h1_font, "GAMEOVER", True, WHITE)
@@ -497,8 +522,8 @@ while running:
                         running = False
             else:
                 if event.key == pygame.K_RETURN:
-                    reset_game()
-                    # snake_list.append(SnakeObject(200, 200, snake_body_img, 30, 30))
+                    # reset_game()
+                     snake_list.append(SnakeObject(200, 200, snake_body_img, 30, 30))
 
                 if using_reverse_time:
                     select_moment_in_time()
