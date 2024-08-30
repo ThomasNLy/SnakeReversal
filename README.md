@@ -55,11 +55,13 @@ To control the snake use the **WASD** to move the snake in the respective direct
 ### Lives and Game Over
 Lives are indicated by the number of hearts, whenever the snake's head crosses over it's own body the player will
 lose 1 life along with the snake reducing in size. Along with that the player will gain a 5 point reduction as a penalty.
-`insert picture here of life bar`
+
+[//]: # (`insert picture here of life bar`)
 
 A **Game Over** state can occur if the player were to lose all their lives or if the head of the snake were to touch any of the
 four walls in the level.
-`insert picture here of level barriers/walls`
+
+[//]: # (insert picture here of level barriers/walls)
 
 ### Restarting the Game after a Game Over
 pressing the **ENTER/RETURN** key on the keyboard will restart the game.
@@ -67,7 +69,8 @@ pressing the **ENTER/RETURN** key on the keyboard will restart the game.
 The player can rewind time up to the 5 most recent moments by pressing the **SPACE BAR** on the keyboard. The number of 
 moments the player can rewind time is indicated by the dots in the UI, each dot represents the number of moments recorded
 so far the player can rewind too.
-`insert picture here of rewind dots`
+
+[//]: # (`insert picture here of rewind dots`)
 
 This feature can be helpful if the player almost run straight into any of the walls avoiding an instant game over. It can also be
 used to have the player revert to an earlier time before any point penalties were to occur. The number of **lives** however 
@@ -75,7 +78,8 @@ are not affected when rewinding time.
 
 The number of times the player can rewind is indicated by the **REWIND counter** in the UI. A rewind points is consumed
 when the player decides a moment in time to continue from by moving the snake using the **WASD** keys
-`pic indicating rewind counter here`
+
+[comment]: # (`pic indicating rewind counter here`)
 
 
 
