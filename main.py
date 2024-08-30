@@ -32,10 +32,10 @@ snake_speed =  5# spacing between snake body parts
 SNAKE_SIZE = 30
 global snake_list
 snake_list = DoublyLinkedList()
-snake_list.append(SnakeObject(200, 200, snake_head_img, SNAKE_SIZE, SNAKE_SIZE))
-snake_list.append(SnakeObject(170, 200, snake_body_img, SNAKE_SIZE, SNAKE_SIZE))
-snake_list.append(SnakeObject(140,200, snake_body_img, SNAKE_SIZE, SNAKE_SIZE))
-snake_list.append(SnakeObject(110, 200, snake_body_img, SNAKE_SIZE, SNAKE_SIZE))
+snake_list.append(SnakeObject(300, 200, snake_head_img, SNAKE_SIZE, SNAKE_SIZE))
+snake_list.append(SnakeObject(270, 200, snake_body_img, SNAKE_SIZE, SNAKE_SIZE))
+snake_list.append(SnakeObject(240,200, snake_body_img, SNAKE_SIZE, SNAKE_SIZE))
+snake_list.append(SnakeObject(210, 200, snake_body_img, SNAKE_SIZE, SNAKE_SIZE))
 
 
 global snake_head
@@ -139,10 +139,10 @@ def reset_game():
 
     global snake_list
     snake_list = DoublyLinkedList()
-    snake_list.append(SnakeObject(200, 200, snake_head_img, SNAKE_SIZE, SNAKE_SIZE))
-    snake_list.append(SnakeObject(170, 200, snake_body_img, SNAKE_SIZE, SNAKE_SIZE))
-    snake_list.append(SnakeObject(140, 200, snake_body_img, SNAKE_SIZE, SNAKE_SIZE))
-    snake_list.append(SnakeObject(110, 200, snake_body_img, SNAKE_SIZE, SNAKE_SIZE))
+    snake_list.append(SnakeObject(300, 200, snake_head_img, SNAKE_SIZE, SNAKE_SIZE))
+    snake_list.append(SnakeObject(270, 200, snake_body_img, SNAKE_SIZE, SNAKE_SIZE))
+    snake_list.append(SnakeObject(240, 200, snake_body_img, SNAKE_SIZE, SNAKE_SIZE))
+    snake_list.append(SnakeObject(210, 200, snake_body_img, SNAKE_SIZE, SNAKE_SIZE))
 
     global snake_head
     snake_head = snake_list.head.value
@@ -159,6 +159,8 @@ def reset_game():
     start_game = False
     global game_over
     game_over = False
+    global lives
+    lives = 3
 
     # -----------time travel code--------------
     global num_recent_time_stamps
@@ -330,20 +332,21 @@ def screen_wrap(gameObject: GameObject):
 
 
 def out_of_bounds():
-    global snake_head, game_over
+    global snake_head
     if snake_head.x < arena_x:
-        game_over = True
+        return True
     if snake_head.x > arena_w + arena_x - SNAKE_SIZE:
-        game_over = True
+        return True
     if snake_head.y < arena_y:
-        game_over = True
+        return True
     if snake_head.y > arena_h + arena_y - SNAKE_SIZE:
-        game_over = True
+        return True
+    return False
 
 
 def take_damage_cooldown():
     global damage_timer, taking_damage
-    if damage_timer < 90 and taking_damage is True:
+    if damage_timer < 60 and taking_damage is True:
         damage_timer += 1
     else:
         damage_timer = 0
@@ -398,9 +401,13 @@ def draw_arena(x, y, width, height):
 #used to control the gameplay/things that render on the screen
 def gameplay():
     global snake_head, apple_can_pickup, snake_list, points, snake_speed
+    global game_over, lives
     draw_arena(arena_x, arena_y, arena_w, arena_h)
 
-    out_of_bounds()
+    if out_of_bounds() is True:
+        game_over = True
+    if lives <= 0:
+        game_over = True
     move_display_snake()
 
     apple.display(screen)
@@ -480,7 +487,8 @@ def UI():
     if game_over:
         game_over_text = pygame.font.Font.render(h1_font, "GAMEOVER", True, WHITE)
         screen.blit(game_over_text, (550, 320))
-
+        restart_instructions_text = pygame.font.Font.render(regular_font, "Press ENTER to play again", True, WHITE)
+        screen.blit(restart_instructions_text, (530, 360))
 
 
 
@@ -521,9 +529,9 @@ while running:
                     if main_menu_option == 1:
                         running = False
             else:
-                if event.key == pygame.K_RETURN:
-                    # reset_game()
-                     snake_list.append(SnakeObject(200, 200, snake_body_img, 30, 30))
+                if event.key == pygame.K_RETURN and game_over is True:
+                    reset_game()
+                    #snake_list.append(SnakeObject(200, 200, snake_body_img, 30, 30))
 
                 if using_reverse_time:
                     select_moment_in_time()
