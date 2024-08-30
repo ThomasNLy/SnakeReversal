@@ -1,3 +1,6 @@
+'''
+Used for testing code
+'''
 from LinkedList import LinkedList
 from Stack import Stack
 from DoublyLinkedList import DoublyLinkedList
