@@ -28,18 +28,18 @@ to reverse time.
 
 4. After you will want to open up the project in the code editor of your choice and set up pygame library along with a virtual environment
 ### PyCharm
-create a virtual environment in pycharm by navigating to settings -> project -> python interpretor and 
+create a virtual environment in pycharm by navigating to settings -> project -> python interpreter and 
 selecting Add Interpreter -> local Interpreter
 in the next window select virtualenv Environment then click ok.
 Official Instructions from PyCharm are linked here: [Set up Virtual Env Instructions](https://www.jetbrains.com/help/pycharm/creating-virtual-environment.html#python_create_virtual_env)
 
 After that you will want to set up the project to include the pygame library to run it
-by navigating back to settings -> project -> python interpreter from there follow the instructions on PyCharms website to install packages under **Manage packages in Python interpreter settings** 
+by navigating back to settings -> project -> python interpreter from there follow the instructions on PyCharm's website to install packages under **Manage packages in Python interpreter settings** 
 
 [Package Installation Instructions](https://www.jetbrains.com/help/pycharm/installing-uninstalling-and-upgrading-packages.html#interpreter-settings)
  
 ### VS Code
-make sure you for VS code you have the python extension installed into the editor to have the editor support python. After you will want to create a virtual environment in the project by 
+make sure for VS code you have the python extension installed into the editor to have the editor support python. After you will want to create a virtual environment in the project by 
 following the instructions listed on VS Codes Web page.
 
 [VS Code Creating a Virtual Environment](https://code.visualstudio.com/docs/python/environments)
@@ -63,7 +63,7 @@ A **Game Over** state can occur if the player were to lose all their lives or if
 four walls in the level.
 
 
-![walls.png](Doc Imgs/walls.png)
+![walls.png](https://github.com/ThomasNLy/SnakeReversal/blob/main/Doc%20Imgs/walls.png)
 ### Restarting the Game after a Game Over
 pressing the **ENTER/RETURN** key on the keyboard will restart the game.
 ### Rewinding Time
@@ -73,7 +73,7 @@ so far the player can rewind too.
 The number of times the player can rewind is indicated by the **REWIND counter** in the UI. A rewind points is consumed
 when the player decides a moment in time to continue from by moving the snake using the **WASD** keys
 
-![Moments recorded.png](Doc Imgs/rewind time moment recorded.png)
+![Moments recorded.png](https://github.com/ThomasNLy/SnakeReversal/blob/main/Doc%20Imgs/rewind%20time%20moment%20recorded.png)
 
 This feature can be helpful if the player almost run straight into any of the walls avoiding an instant game over. It can also be
 used to have the player revert to an earlier time before any point penalties were to occur. The number of **lives** however 
@@ -82,7 +82,7 @@ are not affected when rewinding time.
 ### Collecting apples
 The objective of the game is for the player to collect the apple that will randomly spawn in different locations in the level.
 Whenever the player collides with the apple, the snake will grow longer and the player will gain a point in doing so.
-![colelcting apples.gif](Doc Imgs/collecting apples.gif)
+![colelcting apples.gif](https://github.com/ThomasNLy/SnakeReversal/blob/main/Doc%20Imgs/collecting%20apples.gif)
 
 
 
