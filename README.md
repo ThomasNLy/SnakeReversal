@@ -57,7 +57,7 @@ To control the snake use the **WASD** to move the snake in the respective direct
 Lives are indicated by the number of hearts, whenever the snake's head crosses over it's own body the player will
 lose 1 life along with the snake reducing in size. Along with that the player will gain a 5 point reduction as a penalty.
 
-![life bar.png]([Doc Imgs/life bar.png](https://github.com/ThomasNLy/SnakeReversal/blob/main/Doc%20Imgs/life%20bar.png))
+![life bar.png](https://github.com/ThomasNLy/SnakeReversal/blob/main/Doc%20Imgs/life%20bar.png)
 
 A **Game Over** state can occur if the player were to lose all their lives or if the head of the snake were to touch any of the
 four walls in the level.
