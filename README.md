@@ -82,6 +82,7 @@ are not affected when rewinding time.
 ### Collecting apples
 The objective of the game is for the player to collect the apple that will randomly spawn in different locations in the level.
 Whenever the player collides with the apple, the snake will grow longer and the player will gain a point in doing so.
+
 ![colelcting apples.gif](https://github.com/ThomasNLy/SnakeReversal/blob/main/Doc%20Imgs/collecting%20apples.gif)
 
 
